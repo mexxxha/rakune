@@ -260,7 +260,21 @@ class DesktopController {
   toggleMaximize(id: string) {
     const el = this.get(id);
     if (!el || isMobile()) return;
-    el.classList.toggle('is-maximized');
+
+    const willMaximize = !el.classList.contains('is-maximized');
+    if (willMaximize) {
+      el.dataset.restoreLeft = el.style.left;
+      el.dataset.restoreTop = el.style.top;
+      el.style.left = '';
+      el.style.top = '';
+      el.classList.add('is-maximized');
+    } else {
+      el.classList.remove('is-maximized');
+      el.style.left = el.dataset.restoreLeft ?? '';
+      el.style.top = el.dataset.restoreTop ?? '';
+      delete el.dataset.restoreLeft;
+      delete el.dataset.restoreTop;
+    }
     this.focus(id);
   }
 
