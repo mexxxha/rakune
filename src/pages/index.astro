@@ -2,29 +2,94 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BootScreen from '../components/BootScreen.astro';
 import Desktop from '../components/Desktop.astro';
+import SeoFallback from '../components/SeoFallback.astro';
 import Taskbar from '../components/Taskbar.astro';
 import WorksWindow from '../components/windows/WorksWindow.astro';
 import ViewerWindow from '../components/windows/ViewerWindow.astro';
 import ProfileWindow from '../components/windows/ProfileWindow.astro';
 import ContactWindow from '../components/windows/ContactWindow.astro';
 import { getPortfolio } from '../lib/microcms';
+import {
+  absoluteUrl,
+  artistLinks,
+  artworkAlt,
+  homeTitle,
+  jsonForScript,
+  pageOrigin,
+} from '../lib/seo';
 
-const { works, profile } = await getPortfolio();
-const description = profile.bio.split('\n').find((line) => line.trim()) ?? 'rakune のイラストレーションポートフォリオ';
-const ogImage = works[0]?.image;
+const portfolio = await getPortfolio();
+const { works, profile } = portfolio;
+const description =
+  profile.bio.split('\n').find((line) => line.trim())?.trim() ??
+  'イラストレーター rakune の作品集。人物と、身のまわりの小物を描いています。';
+const featured = works[0];
+const origin = pageOrigin(Astro.site, Astro.url, import.meta.env.DEV);
+const pageUrl = origin ? new URL('/', origin).href : undefined;
+const abs = (src?: string) => absoluteUrl(src, origin);
+const sameAs = artistLinks(profile.links);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      name: 'rakune',
+      description,
+      inLanguage: 'ja',
+      url: pageUrl,
+    },
+    {
+      '@type': 'Person',
+      '@id': pageUrl ? `${pageUrl}#person` : undefined,
+      name: profile.name,
+      jobTitle: 'イラストレーター',
+      description,
+      image: abs(profile.photo),
+      url: pageUrl,
+      ...(sameAs.length > 0 ? { sameAs } : {}),
+    },
+    {
+      '@type': 'ItemList',
+      name: '作品',
+      numberOfItems: works.length,
+      itemListElement: works.map((work, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        item: {
+          '@type': 'VisualArtwork',
+          name: work.title,
+          description: work.caption,
+          image: abs(work.image),
+          artform: 'イラスト',
+          creator: pageUrl ? { '@id': `${pageUrl}#person` } : { '@type': 'Person', name: profile.name },
+          ...(work.year ? { dateCreated: String(work.year) } : {}),
+        },
+      })),
+    },
+  ],
+};
 ---
 
-<BaseLayout title="rakune" description={description} ogImage={ogImage}>
+<BaseLayout
+  title={homeTitle}
+  description={description}
+  image={featured?.image}
+  imageAlt={featured ? artworkAlt(featured) : undefined}
+  jsonLd={jsonLd}
+>
   <div class="os" data-os>
+    <h1 class="sr-only">{homeTitle}</h1>
     <Desktop />
     <WorksWindow works={works} />
-    <ViewerWindow />
+    <ViewerWindow work={featured} />
     <ProfileWindow profile={profile} />
     <ContactWindow links={profile.links} />
     <Taskbar />
   </div>
   <BootScreen />
-  <script is:inline id="portfolio-data" type="application/json" set:html={JSON.stringify({ works })} />
+  <SeoFallback portfolio={portfolio} />
+  <script is:inline id="portfolio-data" type="application/json" set:html={jsonForScript({ works })} />
 </BaseLayout>
 
 <script>

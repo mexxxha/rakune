@@ -1,9 +1,9 @@
+import { artworkAlt, homeTitle, workTitle } from '../lib/seo';
 import type { Work } from '../lib/types';
 
 const MOBILE_MAX = 720;
 const TASKBAR_HEIGHT = 28;
 const DESKTOP_ICON_GUTTER = 96;
-const SITE_TITLE = 'rakune';
 
 function isMobile() {
   return window.matchMedia(`(max-width: ${MOBILE_MAX}px)`).matches;
@@ -234,7 +234,7 @@ class DesktopController {
     if (id === 'viewer') {
       this.currentWorkId = null;
       this.resetViewerZoom();
-      document.title = SITE_TITLE;
+      document.title = homeTitle;
       const url = new URL(location.href);
       url.searchParams.delete('work');
       history.replaceState(null, '', url.pathname);
@@ -361,10 +361,10 @@ class DesktopController {
 
     if (title) title.textContent = work.title;
     if (win) win.dataset.title = work.title;
-    document.title = `${work.title} - ${SITE_TITLE}`;
+    document.title = workTitle(work.title);
     if (image) {
       image.src = work.image;
-      image.alt = work.title;
+      image.alt = artworkAlt(work);
     }
     if (caption) {
       const text = work.caption ?? '';

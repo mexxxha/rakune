@@ -1,16 +1,24 @@
 ---
 import Window from '../Window.astro';
+import { artworkAlt } from '../../lib/seo';
+import type { Work } from '../../lib/types';
+
+interface Props {
+  work?: Work;
+}
+
+const { work } = Astro.props;
 ---
 
-<Window id="viewer" title="画像プレビュー" extraClass="window--viewer">
+<Window id="viewer" title={work?.title ?? '画像プレビュー'} extraClass="window--viewer">
   <div class="viewer">
     <div class="viewer__stage" data-viewer-stage>
-      <img data-viewer-image alt="" />
+      <img data-viewer-image src={work?.image} alt={work ? artworkAlt(work) : ''} />
     </div>
     <div class="viewer__meta">
       <p class="viewer__count" data-viewer-count></p>
-      <p class="viewer__caption" data-viewer-caption hidden></p>
-      <p class="viewer__year" data-viewer-year hidden></p>
+      <p class="viewer__caption" data-viewer-caption hidden={!work?.caption}>{work?.caption}</p>
+      <p class="viewer__year" data-viewer-year hidden={!work?.year}>{work?.year}</p>
     </div>
     <div class="viewer__nav">
       <button class="viewer__back" type="button" data-viewer-back-list>一覧へ</button>

@@ -1,20 +1,28 @@
 ---
 import '../styles/reset.css';
 import '../styles/global.scss';
+import { absoluteUrl, homeTitle, jsonForScript, pageOrigin } from '../lib/seo';
 
 interface Props {
   title?: string;
   description?: string;
-  ogImage?: string;
+  image?: string;
+  imageAlt?: string;
+  jsonLd?: unknown;
 }
 
 const {
-  title = 'rakune',
-  description = 'rakune のイラストレーションポートフォリオ',
-  ogImage,
+  title = homeTitle,
+  description = 'イラストレーター rakune の作品集。人物と、身のまわりの小物を描いています。',
+  image,
+  imageAlt,
+  jsonLd,
 } = Astro.props;
 
-const ogImageUrl = ogImage ? new URL(ogImage, Astro.url).href : undefined;
+const origin = pageOrigin(Astro.site, Astro.url, import.meta.env.DEV);
+const canonical = origin ? new URL(Astro.url.pathname, origin).href : undefined;
+const imageUrl = absoluteUrl(image, origin);
+const jsonLdMarkup = jsonLd ? jsonForScript(jsonLd) : undefined;
 ---
 
 <html lang="ja">
@@ -25,14 +33,24 @@ const ogImageUrl = ogImage ? new URL(ogImage, Astro.url).href : undefined;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
+    <meta name="author" content="rakune" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#008080" />
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="rakune" />
+    {canonical && <meta property="og:url" content={canonical} />}
+    {imageUrl && <meta property="og:image" content={imageUrl} />}
+    {imageUrl && imageAlt && <meta property="og:image:alt" content={imageAlt} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+    {imageUrl && imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
+    {jsonLdMarkup && <script type="application/ld+json" set:html={jsonLdMarkup} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet" />

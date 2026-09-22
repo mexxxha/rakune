@@ -1,5 +1,6 @@
 ---
 import Window from '../Window.astro';
+import { artworkAlt } from '../../lib/seo';
 import type { Work } from '../../lib/types';
 
 interface Props {
@@ -15,9 +16,9 @@ const { works } = Astro.props;
     <div class="explorer__list">
       {
         works.map((work) => (
-          <button class="work-icon" type="button" data-work-id={work.id}>
-            <img src={work.thumb} alt="" width="112" height="112" loading="lazy" />
-            <span>{work.title}</span>
+          <button class="work-icon" type="button" data-work-id={work.id} aria-label={work.title}>
+            <img src={work.thumb} alt={artworkAlt(work)} width="112" height="112" loading="lazy" />
+            <span aria-hidden="true">{work.title}</span>
           </button>
         ))
       }
