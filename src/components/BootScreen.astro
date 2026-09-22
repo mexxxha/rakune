@@ -1,0 +1,190 @@
+<div
+  class="boot"
+  data-boot
+  role="status"
+  aria-label="rakune を起動しています"
+>
+  <div class="boot__scan" aria-hidden="true"></div>
+  <div class="boot__log" data-boot-log aria-hidden="true">
+    <p class="boot__line is-active">
+      <span class="boot__text"></span>
+      <span class="boot__dots" hidden></span>
+      <span class="boot__ok" hidden></span>
+    </p>
+  </div>
+</div>
+
+<script is:inline>
+  const os = document.querySelector('[data-os]');
+  os?.setAttribute('inert', '');
+  window.setTimeout(() => {
+    const boot = document.querySelector('[data-boot]');
+    if (!boot || boot.dataset.bootDone === 'true') return;
+    boot.remove();
+    os?.removeAttribute('inert');
+  }, 12000);
+</script>
+
+<style lang="scss" is:global>
+  @use '../styles/variables' as *;
+
+  .boot {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    padding:
+      calc(8vh + env(safe-area-inset-top, 0px))
+      calc(6vw + env(safe-area-inset-right, 0px))
+      calc(8vh + env(safe-area-inset-bottom, 0px))
+      calc(6vw + env(safe-area-inset-left, 0px));
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse at center, rgba(18, 48, 28, 0.35) 0%, rgba(0, 0, 0, 0.28) 78%),
+      #102216;
+    color: #d7ffe0;
+    font-family: $font-ui;
+    font-size: 20px;
+    line-height: 1.7;
+    cursor: default;
+    user-select: none;
+    transition: opacity 0.5s ease;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #e7ffe8;
+      opacity: 0;
+      pointer-events: none;
+      animation: boot-power 0.45s steps(2, end);
+    }
+
+    &.is-leaving {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+
+  .boot__scan {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.16) 0 1px,
+      transparent 1px 3px
+    );
+    pointer-events: none;
+  }
+
+  .boot__log {
+    position: relative;
+    z-index: 1;
+    width: min(40rem, 100%);
+    text-shadow: 0 0 8px rgba(120, 255, 160, 0.35);
+  }
+
+  .boot__line {
+    min-height: 1.7em;
+
+    &--gap {
+      height: 0.85em;
+      min-height: 0;
+    }
+
+    &--status {
+      display: grid;
+      grid-template-columns: auto minmax(1.25rem, 1fr) auto;
+      column-gap: 0.75em;
+      align-items: baseline;
+    }
+
+    &--title .boot__text {
+      color: #e9ffee;
+    }
+
+    &--dim .boot__text {
+      color: #9ed9ae;
+    }
+
+    &--welcome .boot__text {
+      color: #f4ffe8;
+    }
+  }
+
+  .boot__line.is-active .boot__text::after {
+    content: '';
+    display: inline-block;
+    width: 0.55em;
+    height: 0.9em;
+    margin-left: 0.15em;
+    background: #c8ffd0;
+    box-shadow: 0 0 8px rgba(180, 255, 190, 0.85);
+    vertical-align: text-bottom;
+    animation: boot-blink 1.05s steps(1) infinite;
+  }
+
+  .boot__dots {
+    align-self: center;
+    height: 0;
+    border-bottom: 1px dotted rgba(215, 255, 224, 0.75);
+  }
+
+  .boot__ok {
+    color: #f3ffb0;
+  }
+
+  @keyframes boot-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes boot-power {
+    0% {
+      opacity: 0.22;
+    }
+
+    45% {
+      opacity: 0;
+    }
+
+    60% {
+      opacity: 0.08;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .boot {
+      font-size: 15px;
+    }
+  }
+
+  @media (max-height: 520px) {
+    .boot {
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .boot,
+    .boot::before,
+    .boot__line.is-active .boot__text::after {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>

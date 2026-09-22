@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import BootScreen from '../components/BootScreen.astro';
 import Desktop from '../components/Desktop.astro';
 import Taskbar from '../components/Taskbar.astro';
 import WorksWindow from '../components/windows/WorksWindow.astro';
@@ -14,17 +15,22 @@ const ogImage = works[0]?.image;
 ---
 
 <BaseLayout title="rakune" description={description} ogImage={ogImage}>
-  <Desktop />
-  <WorksWindow works={works} />
-  <ViewerWindow />
-  <ProfileWindow profile={profile} />
-  <ContactWindow links={profile.links} />
-  <Taskbar />
+  <div class="os" data-os>
+    <Desktop />
+    <WorksWindow works={works} />
+    <ViewerWindow />
+    <ProfileWindow profile={profile} />
+    <ContactWindow links={profile.links} />
+    <Taskbar />
+  </div>
+  <BootScreen />
   <script is:inline id="portfolio-data" type="application/json" set:html={JSON.stringify({ works })} />
 </BaseLayout>
 
 <script>
+  import { playBoot } from '../scripts/boot';
   import { initDesktop } from '../scripts/window-manager';
 
+  await playBoot();
   initDesktop();
 </script>
