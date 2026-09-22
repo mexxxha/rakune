@@ -1,6 +1,8 @@
 import { createClient } from 'microcms-js-sdk';
 import { getLocalPortfolio } from './fallback';
-import type { Portfolio, Work } from './types';
+import type { Portfolio, Profile, Work } from './types';
+
+type CmsClient = ReturnType<typeof createClient>;
 
 type MicrocmsImage = {
   url: string;
@@ -12,6 +14,11 @@ type MicrocmsWork = {
   image?: MicrocmsImage;
   caption?: string;
   year?: number;
+};
+
+type MicrocmsProfile = {
+  name?: string;
+  bio?: string;
 };
 
 function isConfigured() {
@@ -30,6 +37,11 @@ function thumbUrl(url: string) {
   return `${url}${joiner}w=480&fm=webp`;
 }
 
+function filled(value: string | undefined) {
+  const text = value?.trim();
+  return text ? text : undefined;
+}
+
 function mapWorks(contents: MicrocmsWork[]): Work[] {
   return contents
     .filter((item) => item.image?.url)
@@ -46,6 +58,36 @@ function mapWorks(contents: MicrocmsWork[]): Work[] {
     });
 }
 
+async function fetchWorks(client: CmsClient, fallback: Work[]) {
+  try {
+    const worksRes = await client.getList<MicrocmsWork>({
+      endpoint: 'works',
+      queries: { limit: 100, orders: '-publishedAt' },
+    });
+    const works = mapWorks(worksRes.contents);
+    return works.length > 0 ? works : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function fetchProfile(client: CmsClient, fallback: Profile): Promise<Profile> {
+  try {
+    const content = await client.getObject<MicrocmsProfile>({
+      endpoint: 'profile',
+    });
+    const name = filled(content.name);
+    const bio = filled(content.bio);
+    return {
+      ...fallback,
+      ...(name ? { name } : {}),
+      ...(bio ? { bio } : {}),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
 export async function getPortfolio(): Promise<Portfolio> {
   const fallback = await getLocalPortfolio();
 
@@ -53,24 +95,15 @@ export async function getPortfolio(): Promise<Portfolio> {
     return fallback;
   }
 
-  try {
-    const client = createClient({
-      serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN,
-      apiKey: import.meta.env.MICROCMS_API_KEY,
-    });
+  const client = createClient({
+    serviceDomain: import.meta.env.MICROCMS_SERVICE_DOMAIN,
+    apiKey: import.meta.env.MICROCMS_API_KEY,
+  });
 
-    const worksRes = await client.getList<MicrocmsWork>({
-      endpoint: 'works',
-      queries: { limit: 100, orders: '-publishedAt' },
-    });
+  const [works, profile] = await Promise.all([
+    fetchWorks(client, fallback.works),
+    fetchProfile(client, fallback.profile),
+  ]);
 
-    const works = mapWorks(worksRes.contents);
-
-    return {
-      works: works.length > 0 ? works : fallback.works,
-      profile: fallback.profile,
-    };
-  } catch {
-    return fallback;
-  }
+  return { works, profile };
 }
