@@ -1,0 +1,32 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  extraClass?: string;
+}
+
+const { id, title, extraClass = '' } = Astro.props;
+const titleId = `window-title-${id}`;
+---
+
+<div
+  class:list={['window', extraClass]}
+  data-window={id}
+  data-title={title}
+  role="dialog"
+  aria-labelledby={titleId}
+  tabindex="-1"
+  hidden
+>
+  <div class="window__titlebar" data-window-drag>
+    <span class="window__title" id={titleId}>{title}</span>
+    <div class="window__controls">
+      <button class="window__btn window__btn--min" type="button" data-window-min aria-label="最小化"></button>
+      <button class="window__btn window__btn--max" type="button" data-window-max aria-label="最大化"></button>
+      <button class="window__btn window__btn--close" type="button" data-window-close aria-label="閉じる"></button>
+    </div>
+  </div>
+  <div class="window__body">
+    <slot />
+  </div>
+</div>

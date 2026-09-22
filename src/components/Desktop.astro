@@ -1,0 +1,39 @@
+---
+const icons = [
+  { id: 'works', label: '作品', kind: 'folder' },
+  { id: 'profile', label: 'プロフィール', kind: 'profile' },
+  { id: 'contact', label: '連絡先', kind: 'contact' },
+] as const;
+---
+
+<nav class="desktop" aria-label="デスクトップ">
+  {
+    icons.map((icon) => (
+      <button class="desktop__icon" type="button" data-open={icon.id}>
+        <span class:list={['desktop__icon-image', `desktop__icon-image--${icon.kind}`]} aria-hidden="true">
+          {icon.kind === 'folder' && (
+            <svg viewBox="0 0 32 32" width="32" height="32">
+              <path fill="#d4a017" d="M3 9h10l3 3h13v14H3z" />
+              <path fill="#f1d64b" d="M4 13h24v12H4z" />
+              <path fill="#e6c22e" d="M4 10h8l2 2H4z" />
+            </svg>
+          )}
+          {icon.kind === 'profile' && (
+            <svg viewBox="0 0 32 32" width="32" height="32">
+              <rect width="32" height="32" fill="#6b8cae" />
+              <circle cx="16" cy="12" r="5" fill="#f7d7c4" />
+              <path fill="#f7d7c4" d="M8 26c1-6 5-8 8-8s7 2 8 8" />
+            </svg>
+          )}
+          {icon.kind === 'contact' && (
+            <svg viewBox="0 0 32 32" width="32" height="32">
+              <rect x="3" y="8" width="26" height="16" fill="#fff" stroke="#404040" />
+              <path d="M3 8l13 10L29 8" fill="none" stroke="#404040" />
+            </svg>
+          )}
+        </span>
+        {icon.label}
+      </button>
+    ))
+  }
+</nav>

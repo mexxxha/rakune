@@ -1,17 +1,30 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Desktop from '../components/Desktop.astro';
+import Taskbar from '../components/Taskbar.astro';
+import WorksWindow from '../components/windows/WorksWindow.astro';
+import ViewerWindow from '../components/windows/ViewerWindow.astro';
+import ProfileWindow from '../components/windows/ProfileWindow.astro';
+import ContactWindow from '../components/windows/ContactWindow.astro';
+import { getPortfolio } from '../lib/microcms';
 
+const { works, profile } = await getPortfolio();
+const description = profile.bio.split('\n').find((line) => line.trim()) ?? 'rakune のイラストレーションポートフォリオ';
+const ogImage = works[0]?.image;
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="rakune" description={description} ogImage={ogImage}>
+  <Desktop />
+  <WorksWindow works={works} />
+  <ViewerWindow />
+  <ProfileWindow profile={profile} />
+  <ContactWindow links={profile.links} />
+  <Taskbar />
+  <script is:inline id="portfolio-data" type="application/json" set:html={JSON.stringify({ works })} />
+</BaseLayout>
+
+<script>
+  import { initDesktop } from '../scripts/window-manager';
+
+  initDesktop();
+</script>

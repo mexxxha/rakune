@@ -1,0 +1,20 @@
+---
+import Window from '../Window.astro';
+import type { Profile } from '../../lib/types';
+
+interface Props {
+  profile: Profile;
+}
+
+const { profile } = Astro.props;
+---
+
+<Window id="profile" title="プロフィール" extraClass="window--profile">
+  <div class="profile">
+    <img class="profile__photo" src={profile.photo} alt={profile.name} width="160" height="160" />
+    <div class="profile__copy">
+      <h2>{profile.name}</h2>
+      <p>{profile.bio}</p>
+    </div>
+  </div>
+</Window>

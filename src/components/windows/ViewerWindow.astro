@@ -1,0 +1,22 @@
+---
+import Window from '../Window.astro';
+---
+
+<Window id="viewer" title="画像プレビュー" extraClass="window--viewer">
+  <div class="viewer">
+    <div class="viewer__stage" data-viewer-stage>
+      <img data-viewer-image alt="" />
+    </div>
+    <div class="viewer__meta">
+      <p class="viewer__count" data-viewer-count></p>
+      <p class="viewer__caption" data-viewer-caption hidden></p>
+      <p class="viewer__year" data-viewer-year hidden></p>
+    </div>
+    <div class="viewer__nav">
+      <button class="viewer__back" type="button" data-viewer-back-list>一覧へ</button>
+      <button type="button" data-viewer-zoom aria-pressed="false">拡大</button>
+      <button type="button" data-viewer-prev>前へ</button>
+      <button type="button" data-viewer-next>次へ</button>
+    </div>
+  </div>
+</Window>

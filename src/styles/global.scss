@@ -1,0 +1,606 @@
+@use 'variables' as *;
+@use 'mixins' as *;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: $desktop;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160' viewBox='0 0 240 160'%3E%3Cellipse fill='%23ffffff' opacity='0.92' cx='52' cy='118' rx='44' ry='18'/%3E%3Cellipse fill='%23ffffff' opacity='0.88' cx='88' cy='112' rx='36' ry='16'/%3E%3Cellipse fill='%23ffffff' opacity='0.9' cx='168' cy='96' rx='52' ry='22'/%3E%3Cellipse fill='%23ffffff' opacity='0.85' cx='196' cy='108' rx='34' ry='14'/%3E%3Cellipse fill='%23ffffff' opacity='0.8' cx='24' cy='72' rx='28' ry='12'/%3E%3Cellipse fill='%23ffffff' opacity='0.86' cx='120' cy='64' rx='40' ry='16'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  color: $text;
+  font-family: $font-ui;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+$viewport-inset-bottom: calc(#{$taskbar-height} + env(safe-area-inset-bottom, 0px));
+
+button,
+a {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: default;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.desktop {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  &__icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 76px;
+    gap: 4px;
+    padding: 2px;
+    color: $white;
+    text-shadow: 1px 1px 0 $dark;
+    cursor: pointer;
+
+    &:hover,
+    &.is-active {
+      background: $title;
+      outline: 1px dotted $white;
+    }
+
+    &:focus-visible {
+      outline: 1px dotted $white;
+    }
+
+    &-image {
+      width: 32px;
+      height: 32px;
+
+      svg {
+        display: block;
+      }
+    }
+  }
+}
+
+.window {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  max-width: calc(100vw - 16px);
+  max-height: calc(100vh - #{$viewport-inset-bottom} - 8px);
+  padding: 3px;
+  background: $face;
+  @include raised;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &--works {
+    top: 24px;
+    left: 100px;
+    width: 440px;
+    height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+
+  &--viewer {
+    top: 24px;
+    left: 556px;
+    width: calc(100vw - 572px);
+    height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+
+  &--viewer .window__body {
+    flex: 1;
+    min-height: 0;
+  }
+
+  &--profile {
+    top: 64px;
+    left: 168px;
+    width: 440px;
+    max-height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+
+  &--profile .window__body,
+  &--contact .window__body {
+    overflow-y: auto;
+  }
+
+  &--contact {
+    top: 88px;
+    left: 200px;
+    width: 360px;
+    max-height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+
+  &.is-minimized {
+    display: none;
+  }
+
+  &.is-maximized {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(100% - #{$viewport-inset-bottom});
+    max-width: none;
+    max-height: none;
+  }
+
+  &.is-inactive &__titlebar {
+    background: $title-inactive;
+  }
+
+  &__titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 18px;
+    padding: 1px 2px 1px 4px;
+    background: $title;
+    color: $white;
+  }
+
+  &__title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 2px;
+    margin-left: auto;
+  }
+
+  &__btn {
+    position: relative;
+    width: 16px;
+    height: 14px;
+    padding: 0;
+    background: $face;
+    @include raised;
+
+    &--min::before {
+      content: '';
+      position: absolute;
+      right: 3px;
+      bottom: 3px;
+      left: 3px;
+      height: 2px;
+      background: $text;
+    }
+
+    &--max::before {
+      content: '';
+      position: absolute;
+      inset: 2px 3px 3px;
+      border: 1px solid $text;
+      border-top-width: 2px;
+    }
+
+    &--close::before,
+    &--close::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 3px;
+      right: 3px;
+      height: 2px;
+      background: $text;
+    }
+
+    &--close::before {
+      transform: rotate(45deg);
+    }
+
+    &--close::after {
+      transform: rotate(-45deg);
+    }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    margin-top: 3px;
+    overflow: hidden;
+    background: $face;
+  }
+}
+
+.explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &__toolbar,
+  &__status {
+    padding: 4px 6px;
+    background: $face;
+  }
+
+  &__toolbar {
+    border-bottom: 1px solid $shadow;
+  }
+
+  &__status {
+    border-top: 1px solid $white;
+    box-shadow: inset 0 1px 0 $shadow;
+  }
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+    padding: 10px;
+    overflow: auto;
+    background: $white;
+    @include sunken;
+  }
+}
+
+.work-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  cursor: pointer;
+
+  &.is-selected {
+    background: $title;
+    color: $white;
+    outline: 1px dotted $white;
+    outline-offset: -3px;
+  }
+
+  &:hover:not(.is-selected) {
+    outline: 1px dotted $text;
+    outline-offset: -3px;
+  }
+
+  img {
+    width: 112px;
+    height: 112px;
+    object-fit: contain;
+    background: $stage-bg;
+    @include sunken;
+  }
+
+  span {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    width: 100%;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  &:focus-visible {
+    outline: 1px dotted $text;
+  }
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 8px;
+  overflow: auto;
+
+  &__stage {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+    padding: 8px;
+    background: $stage-bg;
+    @include sunken;
+
+    &.is-zoomed {
+      align-items: flex-start;
+      justify-content: flex-start;
+      overflow: auto;
+
+      img {
+        max-width: none;
+        max-height: none;
+        width: auto;
+        height: auto;
+      }
+    }
+  }
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-family: $font-body;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  &__caption[hidden],
+  &__year[hidden] {
+    display: none;
+  }
+
+  &__count {
+    font-family: $font-ui;
+    font-size: 12px;
+    color: $dark;
+  }
+
+  &__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  &__nav button {
+    padding: 2px 10px;
+    background: $face;
+    cursor: pointer;
+    @include raised;
+  }
+
+  &__back {
+    display: none;
+    cursor: pointer;
+  }
+}
+
+.profile {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+
+  &__photo {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    object-fit: cover;
+    background: $white;
+    @include sunken;
+  }
+
+  &__copy {
+    min-width: 0;
+  }
+
+  h2 {
+    margin-bottom: 8px;
+    font-size: 16px;
+  }
+
+  p {
+    font-family: $font-body;
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
+}
+
+.contact {
+  padding: 12px;
+  font-family: $font-body;
+  font-size: 14px;
+
+  p {
+    margin-bottom: 10px;
+  }
+
+  li + li {
+    margin-top: 6px;
+  }
+
+  a {
+    color: $title;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+}
+
+.start-menu {
+  position: fixed;
+  left: 2px;
+  bottom: $viewport-inset-bottom;
+  z-index: 80;
+  display: flex;
+  min-width: 220px;
+  background: $face;
+  @include raised;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &__banner {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    width: 28px;
+    padding: 8px 4px;
+    background: $title;
+    color: $white;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 0.1em;
+
+    span {
+      opacity: 0.75;
+    }
+  }
+
+  &__items {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    padding: 4px 0;
+  }
+
+  &__items button {
+    padding: 8px 16px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  &__items button:hover,
+  &__items button:focus-visible {
+    background: $title;
+    color: $white;
+  }
+
+  &__credit {
+    margin: 4px 8px 0;
+    padding: 6px 8px 2px;
+    border-top: 1px solid $shadow;
+    box-shadow: inset 0 1px 0 $white;
+    color: $dark;
+    font-size: 11px;
+  }
+}
+
+.taskbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: $viewport-inset-bottom;
+  padding: 2px 2px calc(2px + env(safe-area-inset-bottom, 0px));
+  background: $face;
+  @include raised;
+
+  &__start,
+  &__task {
+    height: 22px;
+    padding: 0 8px;
+    background: $face;
+    @include raised;
+  }
+
+  &__start {
+    font-weight: 700;
+  }
+
+  &__start.is-active,
+  &__task.is-active {
+    @include sunken;
+  }
+
+  &__tasks {
+    display: flex;
+    flex: 1;
+    gap: 4px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  &__task {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__clock {
+    margin-left: auto;
+    padding: 2px 10px;
+    @include sunken;
+  }
+}
+
+@media (min-width: 721px) and (max-width: 1100px) {
+  .window--works {
+    top: 24px;
+    left: 100px;
+    width: 280px;
+    height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+
+  .window--viewer {
+    top: 24px;
+    left: 396px;
+    width: calc(100vw - 412px);
+    height: calc(100vh - #{$viewport-inset-bottom} - 48px);
+  }
+}
+
+@media (max-width: 720px) {
+  .window,
+  .window--works,
+  .window--viewer,
+  .window--profile,
+  .window--contact,
+  .window.is-maximized {
+    top: 8px;
+    left: 8px;
+    width: calc(100vw - 16px);
+    height: calc(100vh - #{$viewport-inset-bottom} - 16px);
+    max-width: none;
+  }
+
+  .profile {
+    flex-direction: column;
+  }
+
+  .taskbar__task {
+    max-width: 96px;
+  }
+
+  .viewer__back {
+    display: inline-block;
+  }
+
+  .window__btn--min::after,
+  .window__btn--max::after {
+    content: '';
+    position: absolute;
+    inset: -10px;
+  }
+
+  .window__btn--close {
+    width: 28px;
+    height: 24px;
+  }
+
+  .window__titlebar {
+    height: auto;
+    min-height: 24px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+}

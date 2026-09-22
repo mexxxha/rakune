@@ -1,0 +1,27 @@
+---
+import Window from '../Window.astro';
+import type { Work } from '../../lib/types';
+
+interface Props {
+  works: Work[];
+}
+
+const { works } = Astro.props;
+---
+
+<Window id="works" title="作品" extraClass="window--works">
+  <div class="explorer">
+    <div class="explorer__toolbar">作品フォルダ</div>
+    <div class="explorer__list">
+      {
+        works.map((work) => (
+          <button class="work-icon" type="button" data-work-id={work.id}>
+            <img src={work.thumb} alt="" width="112" height="112" loading="lazy" />
+            <span>{work.title}</span>
+          </button>
+        ))
+      }
+    </div>
+    <div class="explorer__status">{works.length} 個のオブジェクト</div>
+  </div>
+</Window>

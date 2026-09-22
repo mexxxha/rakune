@@ -1,0 +1,27 @@
+---
+import Window from '../Window.astro';
+import type { ProfileLink } from '../../lib/types';
+
+interface Props {
+  links: ProfileLink[];
+}
+
+const { links } = Astro.props;
+---
+
+<Window id="contact" title="連絡先" extraClass="window--contact">
+  <div class="contact">
+    <p>お仕事のご相談は、下のリンクからお願いします。</p>
+    <ul>
+      {
+        links.map((link) => (
+          <li>
+            <a href={link.url} target="_blank" rel="noreferrer">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Window>

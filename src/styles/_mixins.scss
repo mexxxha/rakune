@@ -1,0 +1,13 @@
+@use "variables" as *;
+
+@mixin raised {
+  border-style: solid;
+  border-width: 2px;
+  border-color: $white $shadow $shadow $white;
+}
+
+@mixin sunken {
+  border-style: solid;
+  border-width: 2px;
+  border-color: $shadow $white $white $shadow;
+}
